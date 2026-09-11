@@ -18,6 +18,7 @@ jobs:
   build_and_push_to_docker_hub:
       name: Push Docker image to DockerHub
       runs-on: ubuntu-latest
+      environment: prod
       steps:
         - name: Check out the repo
           # Получение исходного кода из репозитория:
