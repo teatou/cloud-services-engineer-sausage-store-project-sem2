@@ -70,7 +70,9 @@ jobs:
       needs: build_and_push_to_docker_hub
 
       steps:
-      #### Опишите необходимые шаги
+        #### Опишите необходимые шаги
+        - name: TODO
+          run: echo "TODO - упаковать helm-чарт и запушить его в Nexus"
 
   # Деплоим приложения в кластер Kubernetes с помощью helm-чарт
   deploy_helm_chart_to_kubernetes:
@@ -79,4 +81,6 @@ jobs:
       needs: add_helm_chart_to_nexus
 
       steps:
-      #### Опишите необходимые шаги
+        #### Опишите необходимые шаги
+        - name: TODO
+          run: echo "TODO - задеплоить helm-чарт в Kubernetes"
