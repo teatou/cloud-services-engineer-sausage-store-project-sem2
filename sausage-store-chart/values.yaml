@@ -86,7 +86,7 @@ backend-report:
   containerPort: 8080
   env:
     port: "8080"
-    mongoUri: mongodb://root:rootpassword@mongodb:27017/sausage-store?authSource=admin
+    mongoUri: mongodb://reports:reportspassword@mongodb:27017/sausage-store
   resources:
     requests:
       memory: "128Mi"
@@ -112,4 +112,7 @@ infra:
     env:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_APP_DATABASE: sausage-store
+      MONGO_APP_USERNAME: reports
+      MONGO_APP_PASSWORD: reportspassword
     containerPort: 27017

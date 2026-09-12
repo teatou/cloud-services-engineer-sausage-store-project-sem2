@@ -62,3 +62,63 @@ metadata:
 data:
   MONGO_INITDB_ROOT_USERNAME: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_USERNAME }}
   MONGO_INITDB_ROOT_PASSWORD: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_PASSWORD }}
+  MONGO_APP_DATABASE: {{ .Values.mongodb.env.MONGO_APP_DATABASE }}
+  MONGO_APP_USERNAME: {{ .Values.mongodb.env.MONGO_APP_USERNAME }}
+  MONGO_APP_PASSWORD: {{ .Values.mongodb.env.MONGO_APP_PASSWORD }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-init-script
+data:
+  init-app-db.js: |
+    db = db.getSiblingDB(process.env.MONGO_APP_DATABASE);
+    if (db.getUser(process.env.MONGO_APP_USERNAME) == null) {
+      db.createUser({
+        user: process.env.MONGO_APP_USERNAME,
+        pwd: process.env.MONGO_APP_PASSWORD,
+        roles: [{ role: 'readWrite', db: process.env.MONGO_APP_DATABASE }]
+      });
+      print('mongodb-init-job: user ' + process.env.MONGO_APP_USERNAME + ' created');
+    } else {
+      print('mongodb-init-job: user ' + process.env.MONGO_APP_USERNAME + ' already exists, skipping');
+    }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-init-job
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-weight: "5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mongodb-init
+          image: mongo:7.0
+          envFrom:
+            - configMapRef:
+                name: mongodb-conf
+          volumeMounts:
+            - name: mongodb-init-script
+              mountPath: /scripts
+              readOnly: true
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              MONGO_URI="mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongodb:27017/admin"
+              until mongosh "$MONGO_URI" --quiet --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1; do
+                echo "Waiting for MongoDB to become ready..."
+                sleep 5
+              done
+              mongosh "$MONGO_URI" --quiet --file /scripts/init-app-db.js
+      volumes:
+        - name: mongodb-init-script
+          configMap:
+            name: mongodb-init-script
