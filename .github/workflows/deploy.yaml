@@ -86,9 +86,22 @@ jobs:
       needs: run_flyway_migrations
 
       steps:
-        #### Опишите необходимые шаги
-        - name: TODO
-          run: echo "TODO - упаковать helm-чарт и запушить его в Nexus"
+        - name: Check out the repo
+          uses: actions/checkout@v3
+        - name: Set up Helm
+          uses: azure/setup-helm@v3
+        - name: Package Helm chart
+          run: |
+            helm package ./sausage-store-chart \
+              --version "0.1.${{ github.run_number }}" \
+              --destination ./packaged
+        - name: Push Helm chart to Nexus
+          run: |
+            CHART_PACKAGE=$(ls ./packaged/*.tgz)
+            curl --fail \
+              -u "$NEXUS_HELM_REPO_USER:$NEXUS_HELM_REPO_PASSWORD" \
+              -F "chart=@${CHART_PACKAGE}" \
+              "$NEXUS_HELM_REPO/"
 
   # Деплоим приложения в кластер Kubernetes с помощью helm-чарт
   deploy_helm_chart_to_kubernetes:
