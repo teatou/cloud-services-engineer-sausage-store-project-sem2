@@ -95,6 +95,7 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 spec:
   backoffLimit: 5
+  activeDeadlineSeconds: 600
   template:
     spec:
       restartPolicy: Never
@@ -121,11 +122,11 @@ spec:
             - |
               set -e
               MONGO_URI="mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongodb:27017/admin"
-              until mongosh "$MONGO_URI" --quiet --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1; do
+              until mongosh "$MONGO_URI" --eval 'db.runCommand({ ping: 1 })'; do
                 echo "Waiting for MongoDB to become ready..."
                 sleep 5
               done
-              mongosh "$MONGO_URI" --quiet --file /scripts/init-app-db.js
+              mongosh "$MONGO_URI" --file /scripts/init-app-db.js
       volumes:
         - name: mongodb-init-script
           configMap:
