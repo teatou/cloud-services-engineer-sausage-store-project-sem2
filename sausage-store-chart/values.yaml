@@ -102,7 +102,7 @@ backend-report:
 infra:
   postgresql:
     containerPort: 5432
-    storage: 5Gi
+    storage: 3Gi
     env:
       POSTGRES_USER: store
       POSTGRES_PASSWORD: storepassword
