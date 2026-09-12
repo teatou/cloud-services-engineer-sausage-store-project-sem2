@@ -83,6 +83,7 @@ jobs:
   add_helm_chart_to_nexus:
       name: Add Helm Chart To Nexus
       runs-on: ubuntu-latest
+      environment: prod
       needs: build_and_push_to_docker_hub
 
       steps:
@@ -107,6 +108,7 @@ jobs:
   deploy_helm_chart_to_kubernetes:
       name: Deploy Helm Chart To Kubernetes
       runs-on: ubuntu-latest
+      environment: prod
       needs: add_helm_chart_to_nexus
 
       steps:
