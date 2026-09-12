@@ -101,7 +101,7 @@ jobs:
             CHART_PACKAGE=$(ls ./packaged/*.tgz)
             curl --fail \
               -u "$NEXUS_HELM_REPO_USER:$NEXUS_HELM_REPO_PASSWORD" \
-              -F "chart=@${CHART_PACKAGE}" \
+              --upload-file "${CHART_PACKAGE}" \
               "$NEXUS_HELM_REPO/"
 
   # Деплоим приложения в кластер Kubernetes с помощью helm-чарт
