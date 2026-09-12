@@ -132,4 +132,5 @@ jobs:
               --set backend.image=$DOCKER_USER/sausage-backend:latest \
               --set frontend.image=$DOCKER_USER/sausage-frontend:latest \
               --set backend-report.image=$DOCKER_USER/sausage-backend-report:latest \
+              --history-max 3 \
               --wait
